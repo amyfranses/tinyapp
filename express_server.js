@@ -12,7 +12,7 @@ function generateRandomString() {
     .toString(16)
     .substring(1);
 }
-console.log(generateRandomString());
+// console.log(generateRandomString());
 
 const urlDatabase = {
   b2xVn2: "http://www.lighthouselabs.ca",
