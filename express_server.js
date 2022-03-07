@@ -3,12 +3,13 @@ const app = express();
 const PORT = 8080; // default port 8080
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
+const { use } = require("express/lib/application");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 app.set("view engine", "ejs");
 
-function generateRandomString() {
+const generateRandomString = function () {
   let result = "";
   const char = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   const length = 6;
@@ -16,7 +17,7 @@ function generateRandomString() {
     result += char.charAt(Math.floor(Math.random() * char.length));
   }
   return result;
-}
+};
 // console.log(generateRandomString());
 
 const urlDatabase = {
@@ -30,6 +31,18 @@ const users = {
     email: "user@example.com",
     password: "purple-monkey-dinosaur",
   },
+};
+
+const emailInUse = function (email, userDatabase) {
+  for (const user in userDatabase) {
+    console.log("user", user);
+    console.log("userDatabase", userDatabase);
+    console.log("userDatabase user", userDatabase[user]);
+    if (userDatabase[user].email === email) {
+      return true;
+    }
+  }
+  return false;
 };
 
 app.get("/urls.json", (req, res) => {
@@ -97,16 +110,20 @@ app.get("/register", (req, res) => {
 app.post("/register", (req, res) => {
   const userEmail = req.body.email;
   const userPassword = req.body.password;
-
-  const newUserId = generateRandomString();
-  users[newUserId] = {
-    id: newUserId,
-    email: userEmail,
-    password: userPassword,
-  };
-
-  res.cookie("user_id", newUserId);
-  res.redirect("/urls");
+  if (!userEmail || !userPassword) {
+    res.send(400, "Please enter a valid email and password");
+  } else if (emailInUse(userEmail, users)) {
+    res.send(400, "This account already exists");
+  } else {
+    const newUserId = generateRandomString();
+    users[newUserId] = {
+      id: newUserId,
+      email: userEmail,
+      password: userPassword,
+    };
+    res.cookie("user_id", newUserId);
+    res.redirect("/urls");
+  }
 });
 
 // responds to '/login' POST request: create cookie with input username
