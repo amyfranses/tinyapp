@@ -24,13 +24,21 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com",
 };
 
+const users = {
+  userRandomID: {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur",
+  },
+};
+
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
 app.get("/urls/new", (req, res) => {
   let templateVars = {
-    username: req.cookies["username"],
+    user: req.cookies["user_id"],
   };
   res.render("urls_new", templateVars);
 });
@@ -38,7 +46,7 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls", (req, res) => {
   let templateVars = {
     urls: urlDatabase,
-    username: req.cookies["username"],
+    user: req.cookies["user_id"],
   };
   res.render("urls_index", templateVars);
 });
@@ -46,7 +54,7 @@ app.get("/urls", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   const longURL = urlDatabase[shortURL];
-  let templateVars = { shortURL, longURL, username: req.cookies["username"] };
+  let templateVars = { shortURL, longURL, user: req.cookies["user_id"] };
   res.render("urls_show", templateVars);
 });
 
@@ -81,28 +89,38 @@ app.post("/urls/:shortURL", (req, res) => {
 
 app.get("/register", (req, res) => {
   let templateVars = {
-    username: req.cookies["username"],
+    user: users[req.cookies["user_id"]],
   };
   res.render("urls_registration", templateVars);
 });
 
-app.post("/login", (req, res) => {
-  const userName = req.body.username;
-  res.cookie("username", [userName]);
+app.post("/register", (req, res) => {
+  const userEmail = req.body.email;
+  const userPassword = req.body.password;
+
+  const newUserId = generateRandomString();
+  users[newUserId] = {
+    id: newUserId,
+    email: userEmail,
+    password: userPassword,
+  };
+
+  res.cookie("user_id", newUserId);
   res.redirect("/urls");
 });
 
+// responds to '/login' POST request: create cookie with input username
+app.post("/login", (req, res) => {
+  const username = req.body.username;
+  res.cookie("username", username);
+  res.redirect("/urls");
+});
+
+// reponds to '/logout' POST request: remove cookie, redirect to /'urls'
 app.post("/logout", (req, res) => {
   res.clearCookie("username");
   res.redirect("/urls");
 });
-// app.get("/", (req, res) => {
-//   res.send("Hello!");
-// });
-
-// app.get("/hello", (req, res) => {
-//   res.send("<html><body>Hello <b>World</b></body></html>\n");
-// });
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
