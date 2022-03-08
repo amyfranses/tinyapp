@@ -33,15 +33,6 @@ const users = {
   },
 };
 
-const emailInUse = function (email, userDatabase) {
-  for (const userId in userDatabase) {
-    if (userDatabase[userId].email === email) {
-      return true;
-    }
-  }
-  return false;
-};
-
 const userFromEmail = function (email, userDatabase) {
   for (const user in userDatabase) {
     if (userDatabase[user].email === email) {
