@@ -126,6 +126,13 @@ app.post("/register", (req, res) => {
   }
 });
 
+app.get("/login", (req, res) => {
+  let templateVars = {
+    user: users[req.cookies["user_id"]],
+  };
+  res.render("urls_login", templateVars);
+});
+
 // responds to '/login' POST request: create cookie with input username
 app.post("/login", (req, res) => {
   const username = req.body.username;
