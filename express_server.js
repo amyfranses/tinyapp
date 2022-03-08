@@ -34,15 +34,20 @@ const users = {
 };
 
 const emailInUse = function (email, userDatabase) {
-  for (const user in userDatabase) {
-    console.log("user", user);
-    console.log("userDatabase", userDatabase);
-    console.log("userDatabase user", userDatabase[user]);
-    if (userDatabase[user].email === email) {
+  for (const userId in userDatabase) {
+    if (userDatabase[userId].email === email) {
       return true;
     }
   }
   return false;
+};
+
+const userFromEmail = function (email, userDatabase) {
+  for (const user in userDatabase) {
+    if (userDatabase[user].email === email) {
+      return userDatabase[user];
+    }
+  }
 };
 
 app.get("/urls.json", (req, res) => {
@@ -50,16 +55,20 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
+  const userId = req.cookies["user_id"];
+  const user = users[userId];
   let templateVars = {
-    user: req.cookies["user_id"],
+    user: user,
   };
   res.render("urls_new", templateVars);
 });
 
 app.get("/urls", (req, res) => {
+  const userId = req.cookies["user_id"];
+  const user = users[userId];
   let templateVars = {
     urls: urlDatabase,
-    user: req.cookies["user_id"],
+    user: user,
   };
   res.render("urls_index", templateVars);
 });
@@ -67,7 +76,8 @@ app.get("/urls", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   const longURL = urlDatabase[shortURL];
-  let templateVars = { shortURL, longURL, user: req.cookies["user_id"] };
+  const user = users[req.cookies["user_id"]];
+  let templateVars = { shortURL, longURL, user };
   res.render("urls_show", templateVars);
 });
 
@@ -111,9 +121,9 @@ app.post("/register", (req, res) => {
   const userEmail = req.body.email;
   const userPassword = req.body.password;
   if (!userEmail || !userPassword) {
-    res.send(400, "Please enter a valid email and password");
-  } else if (emailInUse(userEmail, users)) {
-    res.send(400, "This account already exists");
+    return res.status(400).send("Please enter a valid email and password");
+  } else if (userFromEmail(userEmail, users)) {
+    return res.status(400).send("This account already exists");
   } else {
     const newUserId = generateRandomString();
     users[newUserId] = {
@@ -133,16 +143,26 @@ app.get("/login", (req, res) => {
   res.render("urls_login", templateVars);
 });
 
-// responds to '/login' POST request: create cookie with input username
+// responds to '/login' POST request: create cookie
 app.post("/login", (req, res) => {
-  const username = req.body.username;
-  res.cookie("username", username);
-  res.redirect("/urls");
+  const email = req.body.email;
+  const password = req.body.password;
+  const user = userFromEmail(email, users);
+  if (!user) {
+    return res.status(403).send("There is no account for this email address");
+  } else {
+    if (user.password === password) {
+      res.cookie("user_id", user.id);
+      res.redirect("/urls");
+    } else {
+      return res.status(403).send("This password does not match");
+    }
+  }
 });
 
 // reponds to '/logout' POST request: remove cookie, redirect to /'urls'
 app.post("/logout", (req, res) => {
-  res.clearCookie("username");
+  res.clearCookie("user_id");
   res.redirect("/urls");
 });
 
