@@ -4,8 +4,16 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 ## Final Product
 
+### New User Registration Form
+
 !["New User Registration Form"](https://github.com/amyfranses/tinyapp/blob/master/docs/Screen%20Shot%202022-03-11%20at%2010.01.33%20AM.png?raw=true)
+
+### User's URLs Index
+
 !["User's URLs page"](https://github.com/amyfranses/tinyapp/blob/master/docs/Screen%20Shot%202022-03-11%20at%2010.02.19%20AM.png?raw=true)
+
+### Logged In User Can Edit ShortURLs
+
 !["Edit short URL page for logged in user"](https://github.com/amyfranses/tinyapp/blob/master/docs/Screen%20Shot%202022-03-11%20at%2010.02.57%20AM.png?raw=true)
 
 ## Dependencies
