@@ -11,8 +11,6 @@ const {
   urlsForUser,
 } = require("./helpers");
 
-const { use } = require("express/lib/application");
-
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(
   cookieSession({
@@ -69,19 +67,18 @@ app.get("/register", (req, res) => {
 
 // POST registration, user access urls list
 app.post("/register", (req, res) => {
-  const userEmail = req.body.email;
-  const userPassword = req.body.password;
+  const { email, password } = req.body;
   const newUserId = generateRandomString();
-  if (!userEmail || !userPassword) {
+  if (!email || !password) {
     return res.status(400).send("Please enter a valid email and password");
-  } else if (getUserByEmail(userEmail, users)) {
+  } else if (getUserByEmail(email, users)) {
     return res.status(400).send("This account already exists");
   } else {
     req.session.user_id = newUserId;
     users[newUserId] = {
       id: newUserId,
-      email: userEmail,
-      password: bcrypt.hashSync(userPassword, 10),
+      email,
+      password: bcrypt.hashSync(password, 10),
     };
     return res.redirect("/urls");
   }
@@ -100,17 +97,16 @@ app.get("/login", (req, res) => {
 
 // responds to '/login' takes user to existing urls list
 app.post("/login", (req, res) => {
-  const email = req.body.email;
-  const password = req.body.password;
+  const { email, password } = req.body;
   const user = getUserByEmail(email, users);
   if (!user) {
     return res.status(403).send("There is no account for this email address");
-  } else if (!bcrypt.compareSync(password, user.password)) {
-    return res.status(403).send("This password does not match");
-  } else {
-    req.session.user_id = user.id;
-    res.redirect("/urls");
   }
+  if (!bcrypt.compareSync(password, user.password)) {
+    return res.status(403).send("This password does not match");
+  }
+  req.session.user_id = user.id;
+  res.redirect("/urls");
 });
 
 // reponds to '/logout' POST request: redirect to /'urls'
