@@ -1,6 +1,6 @@
 const { assert } = require("chai");
 
-const { userFromEmail } = require("../helpers.js");
+const { getUserByEmail } = require("../helpers.js");
 
 const testUsers = {
   userRandomID: {
@@ -15,21 +15,21 @@ const testUsers = {
   },
 };
 
-describe("userFromEmail", function () {
+describe("getUserByEmail", function () {
   it("should return a user with valid email", function () {
-    const user = userFromEmail("user@example.com", testUsers);
+    const user = getUserByEmail("user@example.com", testUsers);
     const expectedUserID = "userRandomID";
     assert.strictEqual(user.id, expectedUserID);
   });
 
   it("shoud return user object when provided existing email", function () {
-    const actual = userFromEmail("user@example.com", testUsers);
+    const actual = getUserByEmail("user@example.com", testUsers);
     const expectedOutput = actual;
     assert.strictEqual(actual, expectedOutput);
   });
 
   it("should return undefined when given a non-existent email", function () {
-    const actual = userFromEmail("noUser@example.com", testUsers);
+    const actual = getUserByEmail("noUser@example.com", testUsers);
     const expectedOutput = undefined;
     assert.strictEqual(actual, expectedOutput);
   });
