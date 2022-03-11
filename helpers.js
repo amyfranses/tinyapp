@@ -1,5 +1,5 @@
 // helper functions
-const generateRandomString = function (desiredLength = 6) {
+const generateRandomString = function(desiredLength = 6) {
   let result = "";
   const alphabet =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -9,7 +9,7 @@ const generateRandomString = function (desiredLength = 6) {
   return result;
 };
 
-const userFromEmail = function (email, userDatabase) {
+const getUserByEmail = function(email, userDatabase) {
   for (const id in userDatabase) {
     if (userDatabase[id].email === email) {
       return userDatabase[id];
@@ -17,7 +17,7 @@ const userFromEmail = function (email, userDatabase) {
   }
 };
 
-const urlsForUser = function (id, urlDatabase) {
+const urlsForUser = function(id, urlDatabase) {
   let userURLs = {};
   for (const url in urlDatabase) {
     if (id === urlDatabase[url].userID) {
@@ -27,4 +27,4 @@ const urlsForUser = function (id, urlDatabase) {
   return userURLs;
 };
 
-module.exports = { generateRandomString, userFromEmail, urlsForUser };
+module.exports = { generateRandomString, getUserByEmail, urlsForUser };
